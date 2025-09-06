@@ -2,6 +2,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local Teams = game:GetService("Teams")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
@@ -116,17 +117,16 @@ FOVCircle.Position = Vector2.new(viewportSize.X/2, viewportSize.Y/2)
 -- ESP Table
 local ESPTable = {}
 
--- Track respawned players (รวมทั้งตอนเกิดใหม่)
+-- Track respawned players
 local function TrackPlayer(player)
     player.CharacterAdded:Connect(function(char)
-        -- เคลียร์ ESP เก่า
         if ESPTable[player] then
             ESPTable[player]:Remove()
             ESPTable[player] = nil
         end
-        -- สร้าง ESP ใหม่
         if ESPEnabled then
             local esp = Drawing.new("Circle")
+            -- แยกสีตามทีม
             local playerTeam = player.Team
             local localTeam = LocalPlayer.Team
             esp.Color = (playerTeam == localTeam) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
@@ -171,7 +171,7 @@ RunService.RenderStepped:Connect(function()
     if AimLockEnabled then
         local closestPlayer = nil
         local shortestDistance = FOVRadius
-        local center = Vector2.new(viewportSize.X/2, viewportSize.Y/2)
+        local center = Vector2.new(viewportSize.X/2, viewportSize.Y/2) -- FOV กลางจอ
         for _, player in pairs(Players:GetPlayers()) do
             if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
                 local headPos, onScreen = Camera:WorldToViewportPoint(player.Character.Head.Position)
